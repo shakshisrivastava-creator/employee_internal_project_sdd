@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>INT SDD Gate Review Dashboard</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-card: #1e293b;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent: #38bdf8;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg-primary); color: var(--text-primary); padding: 2rem; line-height: 1.5; }
+    .header { margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { font-size: 1.875rem; color: var(--accent); }
+    .header p { color: var(--text-secondary); margin-top: 0.25rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; }
+    .card h2 { font-size: 1.25rem; margin-bottom: 1rem; color: var(--text-primary); }
+    .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .badge-approved { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+    .badge-pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+    .badge-rejected { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+    .table-container { margin-top: 1rem; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; }
+    th, td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { color: var(--text-secondary); font-weight: 600; background: rgba(15, 23, 42, 0.5); }
+    td { color: var(--text-primary); }
+    .comment-box { background: rgba(15, 23, 42, 0.6); border-left: 3px solid var(--accent); padding: 0.75rem; margin-top: 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div>
+      <h1>INT SDD Gate Review Dashboard</h1>
+      <p>Project: Employee Internal Transfer Digital Journey | Active Spec: internal-transfer-journey</p>
+    </div>
+    <div>
+      <span class="badge badge-pending">Gate 1: In Peer Review</span>
+    </div>
+  </header>
+  
+  <div class="grid">
+    <div class="card">
+      <h2>Gate 1 (Spec & BRD Peer Review)</h2>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span>Assigned Reviewer: <strong>Supratim Jetty</strong> (<code>supratim.jetty@intglobal.com</code>)</span>
+        <span class="badge badge-pending">In Peer Review</span>
+      </div>
+      <div class="comment-box">
+        Evaluating <code>internal-transfer-journey.spec.md</code> against BRD requirements (BRD-001 - BRD-006), 15 Acceptance Criteria, 5 API contracts, and 15 spec-derived unit test cases.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Gate 2 (Code Quality & TDD Review)</h2>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span>Assigned Reviewer: <strong>Supratim Jetty</strong> (<code>supratim.jetty@intglobal.com</code>)</span>
+        <span class="badge badge-pending">Not Started</span>
+      </div>
+      <div class="comment-box">
+        Awaiting Gate 1 Spec Approval, Plan/Tasks generation, and TDD RED ➔ GREEN implementation.
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 1.5rem;">
+    <h2>Active Specifications & Gate Tracking</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Spec ID</th>
+            <th>Feature Name</th>
+            <th>Gate 1 (Spec)</th>
+            <th>Gate 2 (Code)</th>
+            <th>Spec Status</th>
+            <th>Assigned Reviewer</th>
+            <th>Last Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>internal-transfer-journey</code></td>
+            <td>Employee Internal Transfer Digital Journey</td>
+            <td><span class="badge badge-pending">Pending Review</span></td>
+            <td><span class="badge badge-pending">Not Started</span></td>
+            <td><code>In Peer Review</code></td>
+            <td>Supratim Jetty (<code>supratim.jetty@intglobal.com</code>)</td>
+            <td>2026-09-14</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
