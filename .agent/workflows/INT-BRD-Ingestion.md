@@ -1,13 +1,9 @@
 ---
-description: 
----
-
----
 name: int-brd-ingestion
 description: Ingest client BRD documents from docs/, establish or revise the authoritative .ai-context/BRD.md baseline, maintain BRD change traceability, and stop before architecture or implementation work.
 ---
 
-# INT BRD Ingestion
+# INT BRD Ingestion Workflow
 
 ## 1. Purpose
 
@@ -161,19 +157,21 @@ Identify business rules
       ↓
 Identify functional requirements
       ↓
-Identify non-functional requirements
+Identify non-functional requirements (NFRs - MANDATORY)
       ↓
-Identify assumptions
+Identify dependencies (MANDATORY)
       ↓
-Identify out-of-scope items
+Identify assumptions (MANDATORY)
+      ↓
+Identify out-of-scope items (MANDATORY)
       ↓
 Identify open questions
       ↓
-Create .ai-context/BRD.md
+Create .ai-context/BRD.md & .ai-context/assumptions.md
       ↓
 Create initial BRD Change Log entry
       ↓
-Status: Pending Gate 1
+Status: Pending Gate 0 Review
       ↓
 STOP
 ```
@@ -247,11 +245,13 @@ Identify business rules
       ↓
 Identify functional requirements
       ↓
-Identify non-functional requirements
+Identify non-functional requirements (NFRs - MANDATORY)
       ↓
-Identify assumptions
+Identify dependencies (MANDATORY)
       ↓
-Identify out-of-scope items
+Identify assumptions (MANDATORY)
+      ↓
+Identify out-of-scope items (MANDATORY)
       ↓
 Identify open questions
       ↓
@@ -263,9 +263,9 @@ Requirement-level impact analysis
       ↓
 Update BRD Change Log
       ↓
-Update .ai-context/BRD.md with the new requirement baseline
+Update .ai-context/BRD.md & .ai-context/assumptions.md with the new baseline
       ↓
-Return to Gate 1
+Return to Gate 0 Review / Gate 1 Alignment
       ↓
 STOP
 ```
@@ -403,15 +403,18 @@ Pending
 
 ---
 
-# 9. BRD Baseline Update
+# 9. BRD Baseline & Assumptions Update
 
 After the comparison and change-impact analysis have been prepared, update:
 
 ```text
 .ai-context/BRD.md
+.ai-context/assumptions.md
 ```
 
-The updated `BRD.md` becomes the new requirement baseline for downstream work.
+The updated `BRD.md` and `assumptions.md` become the new requirement and assumptions baseline for downstream work and Gate 0 PR review.
+
+Whenever there is any update or revision in the existing BRD, `.ai-context/assumptions.md` MUST be updated as well along with `BRD.md`, `brd-change-log.md`, and all other parameters.
 
 The Change Log MUST preserve the comparison against the previous approved baseline.
 
@@ -515,16 +518,17 @@ Before stopping, verify:
 
 1. Client BRD was read from `docs/`.
 2. Applicable BRD source/version was identified.
-3. `.ai-context/BRD.md` exists.
-4. BRD Requirement IDs are present.
-5. Actors are identified.
-6. Business rules are identified.
-7. Open questions are identified.
-8. Initial or revised baseline is recorded.
-9. `.ai-context/decisions/brd-change-log.md` exists.
-10. Added / Modified / Removed / Unchanged classification is recorded for revisions.
-11. Requirement impact analysis is recorded for changed requirements.
-12. No business implementation was generated.
-13. No existing application implementation was modified.
-14. The workflow stopped before architecture implementation.
-15. The next step is BRD-to-Architecture / required Gate 1 processing.
+3. `.ai-context/BRD.md` exists with all mandatory sections (`Dependencies`, `NFRs`, `Out of Scope`, `Assumptions`, `Functional Requirements`, `Actors`, `Objectives`).
+4. `.ai-context/assumptions.md` was generated or updated alongside `.ai-context/BRD.md`.
+5. BRD Requirement IDs are present.
+6. Actors are identified.
+7. Business rules are identified.
+8. Open questions are identified, and during Gate 0 PR review, all pending open questions are answered and resolved by the reviewer and updated in `.ai-context/BRD.md`.
+9. Initial or revised baseline is recorded.
+10. `.ai-context/decisions/brd-change-log.md` exists.
+11. Added / Modified / Removed / Unchanged classification is recorded for revisions.
+12. Requirement impact analysis is recorded for changed requirements.
+13. No business implementation was generated.
+14. No existing application implementation was modified.
+15. The workflow stopped before architecture implementation.
+16. The next step is Gate 0 BRD PR Review approval / BRD-to-Architecture processing.

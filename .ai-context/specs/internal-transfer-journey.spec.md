@@ -4,7 +4,7 @@
 internal-transfer-journey
 
 ## Status
-In Peer Review
+Rejected
 
 ## Roles & Assignments
 - **Developer:** Antigravity AI / Developer
@@ -17,7 +17,7 @@ In Peer Review
 ## Gate Approvals & History
 | Gate | Approver Name | Approver Email/ID | Date/Time | Outcome | Approval Comment / Summary |
 |---|---|---|---|---|---|
-| Gate 1 (Spec Review) | Supratim Jetty | supratim.jetty@intglobal.com | Pending | In Peer Review | "Pending Gate 1 Peer Review by Supratim Jetty" |
+| Gate 1 (Spec Review) | Supratim Jetty | supratim.jetty@intglobal.com | 2026-10-04 17:28:43 | Rejected | "Requirements scope mismatch and missing edge-case handling for cross-department transfers. Return to BRD ingestion." |
 | Gate 2 (Code Review) | Supratim Jetty | supratim.jetty@intglobal.com | Pending | Not Started | "Pending Implementation & GREEN tests" |
 
 ## Intent

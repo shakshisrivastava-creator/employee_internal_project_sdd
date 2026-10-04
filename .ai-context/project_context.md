@@ -12,6 +12,7 @@ The **Employee Internal Transfer Digital Journey** is an enterprise-grade capabi
 - **Database & Data Access:** PostgreSQL + Sequelize / TypeORM (with multi-environment SQLite/In-memory testing)
 - **Authentication & Security:** JWT Token Authentication + Role-Based Access Control (RBAC)
 - **Deployment Target:** Docker Container / Cloud Native Container Run
+- **Gate 0 Reviewers:** Supratim Jetty (Tech Lead / PM, `supratim.jetty@intglobal.com`)
 - **Gate 1 Reviewers:** Supratim Jetty (Tech Lead / PM, `supratim.jetty@intglobal.com`)
 - **Gate 2 Reviewers:** Supratim Jetty (Tech Lead / PM, `supratim.jetty@intglobal.com`)
 

@@ -1,0 +1,16 @@
+{
+  "name": "employee-internal-transfer-digital-journey",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Employee Internal Transfer Digital Journey - Modular Monolith Full Stack Application",
+  "scripts": {
+    "dev:frontend": "npm --prefix src/frontend run dev",
+    "dev:backend": "npm --prefix src/backend run dev",
+    "build:frontend": "npm --prefix src/frontend run build",
+    "build:backend": "npm --prefix src/backend run build",
+    "build": "npm run build:backend && npm run build:frontend",
+    "test:frontend": "npm --prefix src/frontend test",
+    "test:backend": "npm --prefix src/backend test",
+    "test": "npm run test:backend && npm run test:frontend"
+  }
+}

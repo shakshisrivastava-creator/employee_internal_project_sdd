@@ -28,3 +28,9 @@ scratch/
 !.ai-context/
 !.agents/
 !AGENTS.md
+
+# Vendor Bridges
+CLAUDE.md
+.claude/
+.cursor/
+.cursorrules
