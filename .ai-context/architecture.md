@@ -33,35 +33,40 @@ graph TD
 ```
 
 ## 3. Workflow State Machine
-The transfer lifecycle follows a strict deterministic state machine:
+The transfer lifecycle follows a strict deterministic state machine matching BRD v3.0:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Draft: Employee Creates Request
-    Draft --> Submitted: Employee Submits Request
-    Submitted --> Pending_Current_Manager: Auto-Routed
-    Pending_Current_Manager --> Pending_Receiving_Manager: Current Manager Approves
-    Pending_Current_Manager --> Rejected: Current Manager Rejects
-    Pending_Current_Manager --> Cancelled: Employee Cancels
+    [*] --> DRAFT: Employee Creates Request
+    DRAFT --> SUBMITTED: Employee Submits Request
+    SUBMITTED --> PENDING_CURRENT_MGR: Auto-Routed to Line Manager
     
-    Pending_Receiving_Manager --> Pending_HR: Receiving Manager Approves
-    Pending_Receiving_Manager --> Rejected: Receiving Manager Rejects
-    Pending_Receiving_Manager --> Cancelled: Employee Cancels
+    PENDING_CURRENT_MGR --> PENDING_NEW_MGR: Current Manager Approves
+    PENDING_CURRENT_MGR --> REJECTED: Current Manager Rejects
+    PENDING_CURRENT_MGR --> WITHDRAWN: Employee Withdraws
     
-    Pending_HR --> In_Orchestration: HR Approves
-    Pending_HR --> Rejected: HR Rejects
+    PENDING_NEW_MGR --> PENDING_HR: New Manager Approves
+    PENDING_NEW_MGR --> REJECTED: New Manager Rejects
+    PENDING_NEW_MGR --> WITHDRAWN: Employee Withdraws
     
-    state In_Orchestration {
+    PENDING_HR --> PROCESSING_DOWNSTREAM: HR Approves
+    PENDING_HR --> REJECTED: HR Rejects
+    
+    state PROCESSING_DOWNSTREAM {
         [*] --> Downstream_Parallel
-        Downstream_Parallel --> IT_Complete: IT Task Done
-        Downstream_Parallel --> Payroll_Complete: Payroll Task Done
-        Downstream_Parallel --> Facilities_Complete: Facilities Task Done
+        Downstream_Parallel --> IT_Task: IT Provisioning (5-day SLA)
+        Downstream_Parallel --> Payroll_Task: Payroll Adjustment (5-day SLA)
+        Downstream_Parallel --> Facilities_Task: Facilities Allocation (5-day SLA)
+        
+        IT_Task --> IT_Done: Completed / Failed
+        Payroll_Task --> Payroll_Done: Completed / Failed
+        Facilities_Task --> Facilities_Done: Completed / Failed
     }
     
-    In_Orchestration --> Completed: All 3 Tasks Done
-    Rejected --> [*]
-    Cancelled --> [*]
-    Completed --> [*]
+    PROCESSING_DOWNSTREAM --> COMPLETED: All 3 Tasks Reach Terminal State (Post-HR)
+    REJECTED --> [*]
+    WITHDRAWN --> [*]
+    COMPLETED --> [*]
 ```
 
 ## 4. Directory Structure & Execution Boundaries

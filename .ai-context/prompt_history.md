@@ -93,3 +93,21 @@
   - `.ai-context/prompt_history.md` (Appended turn history)
 - **Outcome:** Gate 0 BRD PR Review complete. Feature specification (`.ai-context/specs/employee-internal-transfer.spec.md`) is authorized for drafting under Milestone 1.
 
+## Turn 010 — 2026-10-05
+- **Prompt:** `/int-project-from-brd`
+- **Context & Intent:** Executed the INT Project From BRD workflow. Verified requirement traceability chain, synchronized change history with Gate 0 sign-off, updated `architecture.md` workflow state machine to precisely match BRD v3.0 canonical states, and verified that business implementation remains strictly blocked until specifications and plans are approved.
+- **Artifacts Created / Updated:**
+  - `.ai-context/decisions/brd-change-log.md` (Updated Gate 0 approval metadata & notes)
+  - `.ai-context/brd-change-log.md` (Updated status to Gate 0 Approved)
+  - `.ai-context/architecture.md` (Synchronized workflow state machine with BRD v3.0)
+  - `.ai-context/prompt_history.md` (Appended turn history)
+- **Outcome:** Requirement traceability chain and architecture baseline verified and synchronized. Ready for Milestone 1 Feature Specification authoring.
+
+## Turn 011 — 2026-10-05
+- **Prompt:** `/int-project-resume`
+- **Context & Intent:** Reconstructed project state tree. Confirmed Gate 0 approval of BRD v3.0, received user confirmation to proceed with Feature Specification generation, authored comprehensive specification `.ai-context/specs/employee-internal-transfer.spec.md` with complete API contracts (`API01`..`API08`), acceptance criteria (`AC01`..`AC15`), and unit test mapping (`UT01`..`UT15`). Updated project status board to Milestone 2 (Gate 1 Spec Peer Review).
+- **Artifacts Created / Updated:**
+  - `.ai-context/specs/employee-internal-transfer.spec.md` (Created authoritative feature spec)
+  - `.ai-context/status.md` (Updated to Milestone 2 — Submitted for Gate 1 Review)
+  - `.ai-context/prompt_history.md` (Appended turn history)
+- **Outcome:** Milestone 1 complete. Specification submitted for Gate 1 PR review by Supratim Jetty (`supratim.jetty@intglobal.com`).
