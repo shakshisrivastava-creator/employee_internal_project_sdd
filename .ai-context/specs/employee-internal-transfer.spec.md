@@ -4,7 +4,7 @@
 `employee-internal-transfer`
 
 ## Status
-In Peer Review
+Approved
 
 ## Roles & Assignments
 - **Developer:** Antigravity AI / Shakshi
@@ -12,15 +12,15 @@ In Peer Review
 - **Gate 2 Reviewer(s):** Supratim Jetty (`supratim.jetty@intglobal.com`)
 
 ## Linked BRD
-- Primary Baseline: [.ai-context/BRD.md](file:///d:/INTERNAL_SDD/employee_internal_project_sdd/.ai-context/BRD.md) (v3.0 Comprehensive)
-- Assumptions: [.ai-context/assumptions.md](file:///d:/INTERNAL_SDD/employee_internal_project_sdd/.ai-context/assumptions.md)
-- Gate 0 Review Sign-off: [.ai-context/pr_reviews/GATE0-BRD-v3.0-20261005-133928.md](file:///d:/INTERNAL_SDD/employee_internal_project_sdd/.ai-context/pr_reviews/GATE0-BRD-v3.0-20261005-133928.md)
+- Primary Baseline: [.ai-context/BRD.md](file:///.ai-context/BRD.md) (v3.0 Comprehensive)
+- Assumptions: [.ai-context/assumptions.md](file:///.ai-context/assumptions.md)
+- Gate 0 Review Sign-off: [.ai-context/pr_reviews/GATE0-BRD-v3.0-20261005-133928.md](file:///.ai-context/pr_reviews/GATE0-BRD-v3.0-20261005-133928.md)
 
 ## Gate Approvals & History
 | Gate | Approver Name | Approver Email/ID | Date/Time | Outcome | Approval Comment / Summary |
 |---|---|---|---|---|---|
 | Gate 0 (BRD Review) | Supratim Jetty | `supratim.jetty@intglobal.com` | 2026-10-05 13:39:28 | Approved | Approved Gate 0 BRD v3.0 baseline. Authorized for Milestone 1 Feature Specification generation. |
-| Gate 1 (Spec Review) | Supratim Jetty | `supratim.jetty@intglobal.com` | Pending | Pending Review | Submitted for Gate 1 PR review. |
+| Gate 1 (Spec Review) | Supratim Jetty | `supratim.jetty@intglobal.com` | 2026-10-05 23:34:49 | Approved | Approved Gate 1 Spec Review. Authorized technical plan (.plan.md), tasks breakdown (.tasks.md), and TDD implementation. |
 | Gate 2 (Code Review) | Supratim Jetty | `supratim.jetty@intglobal.com` | Pending | Not Started | Blocked until implementation and TDD green tests. |
 
 ---
