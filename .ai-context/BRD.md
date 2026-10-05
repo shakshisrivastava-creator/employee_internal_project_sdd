@@ -10,9 +10,10 @@
 | **Feature Slug** | `employee-internal-transfer`               |
 | **BRD Version**  | 3.0 (Comprehensive — All Scenarios)        |
 | **Author**       | Shakshi                                    |
-| **Reviewer**     | Soumyadeep \| INT Delivery Leadership      |
-| **Date**         | October 2026                               |
-| **SDD Phase**    | Milestone 1 — Discovery & Specification    |
+| **Gate 0 Reviewer** | Supratim Jetty (`supratim.jetty@intglobal.com`) |
+| **Gate 0 Status** | Approved (2026-10-05 13:39:28)              |
+| **Review Record** | `.ai-context/pr_reviews/GATE0-BRD-v3.0-20261005-133928.md` |
+| **SDD Phase**    | Milestone 1 — Specification Generation Authorized |
 
 ---
 
