@@ -1,4 +1,4 @@
-# Business Requirements Document (BRD) — v3.0
+# Business Requirements Document (BRD) — v4.0
 
 ## Employee Internal Transfer Digital Journey
 
@@ -8,12 +8,21 @@
 | ---------------- | ------------------------------------------ |
 | **Project Name** | Employee Internal Transfer Digital Journey |
 | **Feature Slug** | `employee-internal-transfer`               |
-| **BRD Version**  | 3.0 (Comprehensive — All Scenarios)        |
+| **BRD Version**  | 4.0 (Proxy-Initiated Transfer Scenarios)   |
 | **Author**       | Shakshi                                    |
+| **Previous Version** | 3.0 (Comprehensive — All Scenarios) — Approved 2026-10-05 |
+| **Change Summary** | Added proxy-initiated transfer scenarios (Manager-proxy, HR-proxy). Introduced `initiatedById` / `transferringEmployeeId` separation. Resolved 7 open business decisions. |
 | **Gate 0 Reviewer** | Supratim Jetty (`supratim.jetty@intglobal.com`) |
-| **Gate 0 Status** | Approved (2026-10-05 13:39:28)              |
-| **Review Record** | `.ai-context/pr_reviews/GATE0-BRD-v3.0-20261005-133928.md` |
-| **SDD Phase**    | Milestone 1 — Specification Generation Authorized |
+| **Gate 0 Status** | 🟡 Pending Re-Approval (v4.0 Change)        |
+| **Previous Gate 0** | Approved (2026-10-05 13:39:28) — `.ai-context/pr_reviews/GATE0-BRD-v3.0-20261005-133928.md` |
+| **Gate 2 Status** | ⛔ Suspended — Gate 0 re-approval required before Gate 2 can resume |
+| **SDD Phase**    | Gate 0 Re-Review Required (BRD v4.0 Change) |
+
+> **IMPORTANT — Change Classification Legend used throughout this document:**
+> - `[EXISTING]` — Requirement unchanged from BRD v3.0
+> - `[NEW]` — Newly proposed requirement added in BRD v4.0
+> - `[MODIFIED]` — Existing requirement updated in BRD v4.0
+> - `[DECIDED]` — Business decision resolved during v4.0 authoring (from open question)
 
 ---
 
@@ -25,6 +34,10 @@
 4. Scope & Boundaries
 5. Stakeholders & Actor Matrix
 6. Complete Employee Journey — Step-by-Step Scenarios
+   - Scenarios A–N: `[EXISTING]` (unchanged from v3.0)
+   - Scenario P: `[NEW]` Manager-Proxy Initiated Transfer
+   - Scenario Q: `[NEW]` HR-Proxy Initiated Transfer
+   - Scenario R: `[NEW]` Manager Raises Transfer for Themselves (Self-Initiated Path)
 7. Functional Business Requirements
 8. Business Rules
 9. Request Lifecycle & State Machine
@@ -128,18 +141,24 @@ Every action is audit-logged.
 
 ### 4.1 In Scope
 
-- Employee-facing transfer request initiation form with validation.
-- Save-as-Draft capability for incomplete requests.
-- Sequential dual-manager approval flow (Current Manager → New Manager).
-- HR eligibility validation step with mandatory justification on rejection.
-- Downstream orchestration task management for 4 departments: HR Org Update, IT Access, Payroll Update, Facilities.
-- Employee-facing real-time status dashboard showing all journey stages and pending actors.
-- Employee withdrawal of submitted requests (prior to HR approval).
-- Rejection at any stage with mandatory rejection reason and employee notification.
-- Role-based access control (RBAC) ensuring each actor can only view and act on their assigned items.
-- Immutable audit trail for every lifecycle action.
-- Stakeholder notifications (email + in-portal) at every stage transition.
-- Reference data dropdown population (Departments, Locations, Roles).
+- `[EXISTING]` Employee-facing transfer request initiation form with validation.
+- `[EXISTING]` Save-as-Draft capability for incomplete requests.
+- `[EXISTING]` Sequential dual-manager approval flow (Current Manager → New Manager).
+- `[EXISTING]` HR eligibility validation step with mandatory justification on rejection.
+- `[EXISTING]` Downstream orchestration task management for 4 departments: HR Org Update, IT Access, Payroll Update, Facilities.
+- `[EXISTING]` Employee-facing real-time status dashboard showing all journey stages and pending actors.
+- `[EXISTING]` Employee withdrawal of submitted requests (prior to HR approval).
+- `[EXISTING]` Rejection at any stage with mandatory rejection reason and employee notification.
+- `[EXISTING]` Role-based access control (RBAC) ensuring each actor can only view and act on their assigned items.
+- `[EXISTING]` Immutable audit trail for every lifecycle action.
+- `[EXISTING]` Stakeholder notifications (email + in-portal) at every stage transition.
+- `[EXISTING]` Reference data dropdown population (Departments, Locations, Roles).
+- `[NEW]` **Proxy-Initiated Transfer**: A Manager may raise a transfer request on behalf of one of their own direct reports. The system records the initiator (`initiatedById`) separately from the transferring employee (`transferringEmployeeId`).
+- `[NEW]` **HR-Proxy Initiated Transfer**: An HR Administrator may raise a transfer request on behalf of any employee in the organisation. Both roles recorded separately.
+- `[NEW]` **Proxy Draft Management**: A proxy initiator (Manager or HR) may save and edit a draft on behalf of the transferring employee.
+- `[NEW]` **Proxy Notification on Submission**: When a proxy initiates a request on behalf of an employee, the transferring employee is immediately notified.
+- `[NEW]` **Dual Withdrawal Rights for Proxy Requests**: Either the transferring employee or the proxy initiator may withdraw a proxy-initiated request, subject to the same pre-HR lockout window.
+- `[NEW]` **Modified Approval Routing for Manager-Proxy**: When a Manager raises a proxy request, the Current Manager approval step is skipped (proxy consent is implicit); the request routes directly to New Manager approval.
 
 ### 4.2 Out of Scope
 
@@ -158,15 +177,16 @@ Every action is audit-logged.
 
 ## 5. Stakeholders & Actor Matrix
 
-| Actor                        | Role                  | Responsibilities in Journey                                                                                                                | Portal Access Level                          |
-| ---------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
-| **Employee**                 | Initiator             | Draft, submit, track, withdraw request.                                                                                                    | Own requests only.                           |
-| **Current Manager**          | Outbound Approver     | First approval gate. Reviews request from their team member. Can approve or reject with a reason.                                          | Requests where they are the current manager. |
-| **New Manager**              | Inbound Approver      | Second approval gate. Reviews request to accept the employee into their team. Can approve or reject with a reason.                         | Requests targeted at their department.       |
-| **HR Administrator**         | Eligibility Validator | Third approval gate. Validates employee eligibility (tenure, standing). Approves (triggering downstream) or rejects with mandatory reason. | All requests in PENDING_HR_VALIDATION.       |
-| **IT Administrator**         | Downstream Executor   | Reviews IT access requirements. Marks IT task as COMPLETED or FAILED.                                                                      | Assigned IT orchestration tasks.             |
-| **Payroll Administrator**    | Downstream Executor   | Updates payroll records. Marks Payroll task as COMPLETED or FAILED.                                                                        | Assigned Payroll orchestration tasks.        |
-| **Facilities Administrator** | Downstream Executor   | Allocates workspace at the new location. Marks Facilities task as COMPLETED or FAILED.                                                     | Assigned Facilities orchestration tasks.     |
+| Actor | Role | Change | Responsibilities in Journey | Portal Access Level |
+| --- | --- | --- | --- | --- |
+| **Employee** | `[EXISTING]` Self-Initiator / Transferring Employee | `[MODIFIED]` Now may also be the recipient of a proxy-initiated request | Draft, submit, track, withdraw own request. Receives notification if a proxy initiates on their behalf. | Own requests only. |
+| **Current Manager** | `[EXISTING]` Outbound Approver / `[NEW]` Proxy Initiator | `[MODIFIED]` Dual role added | **Approver role:** First approval gate for self-initiated requests. **Proxy role `[NEW]`:** May initiate a transfer request on behalf of one of their own direct reports. Proxy initiation skips the Current Manager approval step (consent implicit in initiation). | Requests where they are the current manager; `[NEW]` can initiate proxy requests for own direct reports only. |
+| **New Manager** | `[EXISTING]` Inbound Approver | No change | Second approval gate. Reviews request to accept the employee into their team. Can approve or reject with a reason. Receives proxy-initiated requests identically to self-initiated. | Requests targeted at their department. |
+| **HR Administrator** | `[EXISTING]` Eligibility Validator / `[NEW]` Proxy Initiator | `[MODIFIED]` Proxy role added | **Validator role:** Third approval gate. **Proxy role `[NEW]`:** May initiate a transfer request on behalf of any employee in the organisation. HR-initiated requests still go through the full approval chain; HR initiator cannot approve their own proxy request. | All requests in PENDING_HR_VALIDATION; `[NEW]` can initiate proxy requests for any employee. |
+| **IT Administrator** | `[EXISTING]` Downstream Executor | No change | Reviews IT access requirements. Marks IT task as COMPLETED or FAILED. | Assigned IT orchestration tasks. |
+| **Payroll Administrator** | `[EXISTING]` Downstream Executor | No change | Updates payroll records. Marks Payroll task as COMPLETED or FAILED. | Assigned Payroll orchestration tasks. |
+| **Facilities Administrator** | `[EXISTING]` Downstream Executor | No change | Allocates workspace at the new location. Marks Facilities task as COMPLETED or FAILED. | Assigned Facilities orchestration tasks. |
+| **`initiatedById` vs `transferringEmployeeId`** | `[NEW]` Conceptual distinction | `[NEW]` | In proxy scenarios, `initiatedById` = the person who submitted (Manager or HR), `transferringEmployeeId` = the employee actually transferring. In self-initiated, both fields are identical. All approval routing, eligibility checks, duplicate-request validation, and IDOR enforcement must use `transferringEmployeeId`. | N/A — system field distinction |
 
 ---
 
@@ -402,7 +422,7 @@ This section covers every scenario an employee or stakeholder may encounter, inc
 
 ---
 
-### Scenario N: Downstream SLA Breach (Reminder Notification)
+### Scenario N: Downstream SLA Breach (Reminder Notification) `[EXISTING]`
 
 **Description**: A downstream team has not completed their task within 5 business days of assignment.
 
@@ -414,42 +434,139 @@ This section covers every scenario an employee or stakeholder may encounter, inc
 
 ---
 
+### Scenario P: Manager Raises a Transfer Request on Behalf of a Direct Report `[NEW]`
+
+**Description**: A Current Manager wishes to initiate a transfer for one of their own direct reports rather than waiting for the employee to self-initiate.
+
+**Pre-condition:** The transferring employee does not already have an active (non-terminal) transfer request.
+
+#### Stage P1: Manager Initiates Proxy Request
+
+1. Manager logs into the One-Point Portal and navigates to **Team Transfers → Initiate Transfer for Employee**.
+2. Manager selects the employee to transfer from a dropdown of their **own direct reports only** (system enforces this constraint).
+3. Manager completes the transfer form: target department, location, role, effective date (≥14 days), and reason.
+4. System validates: effective date, no active request for the **transferring employee**, target manager is not the transferring employee.
+5. Manager may save as **DRAFT** or submit directly.
+6. On submit, system creates the request recording:
+   - `initiatedById` = Manager's employee ID
+   - `transferringEmployeeId` = selected direct report's employee ID
+   - `initiationMode` = `PROXY_MANAGER`
+7. **Transferring employee is immediately notified**: _"A transfer request has been initiated on your behalf by your manager [Manager Name] to [New Department]. Request ID: TRF-00143."_
+8. Because the initiating Manager has already consented (by initiating the request), **the Current Manager approval step is skipped**.
+9. Request status transitions directly to **PENDING_NEW_MANAGER_APPROVAL**.
+10. New Manager receives standard approval notification.
+
+#### Stage P2: Approval and Downstream Flow
+
+- From **PENDING_NEW_MANAGER_APPROVAL** onward, the process is identical to Scenario A (Stages A3–A6).
+- Rejection, withdrawal, and downstream orchestration follow the same rules as self-initiated requests.
+
+#### Stage P3: Withdrawal of Proxy-Initiated Request
+
+- Either the **transferring employee** or the **proxy initiator (Manager)** may withdraw the request while it is in **PENDING_NEW_MANAGER_APPROVAL** or an earlier non-terminal state.
+- Withdrawal after HR approval follows the same lockout rules as Scenario G.
+- When either party withdraws, the other party is notified.
+
+---
+
+### Scenario Q: HR Administrator Raises a Transfer Request on Behalf of an Employee `[NEW]`
+
+**Description**: An HR Administrator initiates a transfer request on behalf of any employee in the organisation (e.g., for organisational restructuring).
+
+**Pre-condition:** The transferring employee does not already have an active (non-terminal) transfer request.
+
+#### Stage Q1: HR Initiates Proxy Request
+
+1. HR Administrator logs into the portal and navigates to **HR Tools → Initiate Transfer on Behalf of Employee**.
+2. HR selects any employee in the organisation from the employee directory (no hierarchy restriction for HR-proxy).
+3. HR completes the transfer form: target department, location, role, effective date (≥14 days), and reason.
+4. System validates: effective date, no active request for the **transferring employee**, target manager is not the transferring employee.
+5. HR may save as **DRAFT** or submit directly.
+6. On submit, system creates the request recording:
+   - `initiatedById` = HR Administrator's employee ID
+   - `transferringEmployeeId` = selected employee's employee ID
+   - `initiationMode` = `PROXY_HR`
+7. **Transferring employee is immediately notified**: _"A transfer request has been initiated on your behalf by HR [HR Admin Name] to [New Department]. Request ID: TRF-00144."_
+8. **HR-proxy requests are NOT self-approved**: Even though HR initiated the request, it must still go through the full approval chain:
+   - PENDING_CURRENT_MANAGER_APPROVAL → PENDING_NEW_MANAGER_APPROVAL → PENDING_HR_VALIDATION.
+   - The HR Administrator who initiated the request **must not be the same person** who validates it at the HR gate (system enforces).
+9. Current Manager of the **transferring employee** (not the HR initiator's manager) receives the standard approval notification.
+
+#### Stage Q2: Approval and Downstream Flow
+
+- From **PENDING_CURRENT_MANAGER_APPROVAL** onward, the process is identical to Scenario A (Stages A2–A6).
+- Rejection, withdrawal, and downstream orchestration follow the same rules as self-initiated requests.
+
+#### Stage Q3: Withdrawal of HR-Proxy Request
+
+- Either the **transferring employee** or the **HR proxy initiator** may withdraw the request while it is in PENDING_CURRENT_MANAGER_APPROVAL or PENDING_NEW_MANAGER_APPROVAL.
+- Withdrawal after HR approval follows the same lockout rules as Scenario G.
+
+---
+
+### Scenario R: Manager Raises a Transfer Request for Themselves `[NEW — DECIDED]`
+
+**Description**: A Manager wishes to transfer themselves to a different department/role. Even though they hold a Manager role, they are acting as an employee.
+
+**Business Decision (OQ-NEW-05 — DECIDED):** When a Manager raises a transfer request for themselves, the **self-initiated path applies**. The system treats them identically to any employee self-initiating: `initiatedById` = `transferringEmployeeId` = the Manager's own employee ID. No proxy recording occurs. The `initiationMode` = `SELF`.
+
+1. Manager navigates to **My Transfers → New Transfer Request** (same as any employee).
+2. System does not offer the "select employee" proxy picker — the form is pre-populated with their own profile.
+3. Submission, validation, and approval routing follow Scenario A exactly.
+4. The approval chain routes to **the Manager's own line manager** (skip-level) as the Current Manager approver.
+
+---
+
 ## 7. Functional Business Requirements
 
-| BR ID | Requirement Description                                                                                                         | Priority    | Scenario Ref |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------ |
-| BR-01 | The employee shall select a target department, location, role, and effective date (all mandatory).                              | Must Have   | A, B, J, K   |
-| BR-02 | The employee may optionally provide a reason for the transfer (max 500 characters).                                             | Should Have | A            |
-| BR-03 | The effective date must be at least 14 calendar days from the date of submission.                                               | Must Have   | A, J         |
-| BR-04 | The employee shall be able to save an incomplete transfer request as a DRAFT and resume it later.                               | Must Have   | B            |
-| BR-05 | An employee may have only one active non-terminal transfer request at any time.                                                 | Must Have   | I            |
-| BR-06 | The Current Manager shall be able to approve or reject the request with a mandatory rejection reason.                           | Must Have   | A, C         |
-| BR-07 | The New Manager shall be able to approve or reject the request with a mandatory rejection reason.                               | Must Have   | A, D         |
-| BR-08 | The HR Administrator shall be able to approve (triggering downstream tasks) or reject with a mandatory reason.                  | Must Have   | A, E         |
-| BR-09 | Downstream orchestration tasks (HR Org Update, IT Access, Payroll, Facilities) shall be spawned automatically upon HR approval. | Must Have   | A, H         |
-| BR-10 | Each downstream team shall independently mark their task as COMPLETED or FAILED, with a mandatory comment on failure.           | Must Have   | A, H         |
-| BR-11 | The employee shall be able to view the real-time status of all journey stages and the pending actor at each stage.              | Must Have   | A through N  |
-| BR-12 | The employee shall be able to withdraw a submitted request at any time prior to HR validation commencing.                       | Must Have   | F, G         |
-| BR-13 | All stakeholders shall receive timely notifications (email + in-portal) when their action is required or a transition occurs.   | Must Have   | A through N  |
-| BR-14 | The employee shall see a clear rejection banner with the rejecting actor, the rejection stage, and the reason.                  | Must Have   | C, D, E      |
-| BR-15 | An immutable audit log shall be created for every lifecycle state transition, capturing actor, role, action, and UTC timestamp. | Must Have   | All          |
+| BR ID | Change | Requirement Description | Priority | Scenario Ref |
+| ----- | ------ | ----------------------- | -------- | ------------ |
+| BR-01 | `[EXISTING]` | The initiator shall select a target department, location, role, and effective date (all mandatory). | Must Have | A, B, J, K, P, Q |
+| BR-02 | `[EXISTING]` | The initiator may optionally provide a reason for the transfer (max 500 characters). | Should Have | A, P, Q |
+| BR-03 | `[EXISTING]` | The effective date must be at least 14 calendar days from the date of submission. | Must Have | A, J, P, Q |
+| BR-04 | `[MODIFIED]` | The initiator (employee or proxy) shall be able to save an incomplete transfer request as a DRAFT and resume it later. A proxy initiator may also save and edit drafts on behalf of the transferring employee. | Must Have | B, P, Q |
+| BR-05 | `[MODIFIED]` | A transferring employee may have only one active non-terminal transfer request at any time. The uniqueness check is always based on `transferringEmployeeId`, never `initiatedById`. | Must Have | I, P, Q |
+| BR-06 | `[EXISTING]` | The Current Manager shall be able to approve or reject the request with a mandatory rejection reason. | Must Have | A, C |
+| BR-07 | `[EXISTING]` | The New Manager shall be able to approve or reject the request with a mandatory rejection reason. | Must Have | A, D, P |
+| BR-08 | `[EXISTING]` | The HR Administrator shall be able to approve (triggering downstream tasks) or reject with a mandatory reason. | Must Have | A, E, Q |
+| BR-09 | `[EXISTING]` | Downstream orchestration tasks (HR Org Update, IT Access, Payroll, Facilities) shall be spawned automatically upon HR approval. | Must Have | A, H |
+| BR-10 | `[EXISTING]` | Each downstream team shall independently mark their task as COMPLETED or FAILED, with a mandatory comment on failure. | Must Have | A, H |
+| BR-11 | `[MODIFIED]` | The transferring employee and the proxy initiator (if applicable) shall be able to view the real-time status of all journey stages and the pending actor at each stage. | Must Have | A through N, P, Q |
+| BR-12 | `[MODIFIED]` | The transferring employee **or** the proxy initiator (if applicable) shall be able to withdraw a submitted request at any time prior to HR validation commencing. When one party withdraws, the other party is notified. | Must Have | F, G, P, Q |
+| BR-13 | `[MODIFIED]` | All stakeholders (including the transferring employee when a proxy initiates on their behalf) shall receive timely notifications (email + in-portal) when their action is required or a transition occurs. | Must Have | A through N, P, Q |
+| BR-14 | `[EXISTING]` | The employee shall see a clear rejection banner with the rejecting actor, the rejection stage, and the reason. | Must Have | C, D, E |
+| BR-15 | `[EXISTING]` | An immutable audit log shall be created for every lifecycle state transition, capturing actor, role, action, and UTC timestamp. | Must Have | All |
+| BR-16 | `[NEW]` | A Manager shall be able to initiate a transfer request on behalf of **one of their own direct reports only** (system enforces direct-report constraint). The system shall record `initiatedById` (Manager) and `transferringEmployeeId` (direct report) as separate fields. | Must Have | P |
+| BR-17 | `[NEW]` | An HR Administrator shall be able to initiate a transfer request on behalf of **any employee in the organisation**. The system shall record `initiatedById` (HR) and `transferringEmployeeId` as separate fields. | Must Have | Q |
+| BR-18 | `[NEW]` | When a Manager initiates a proxy request, the Current Manager approval step shall be skipped (proxy consent is implicit); the request shall route directly to New Manager approval. | Must Have | P |
+| BR-19 | `[NEW]` | When an HR Administrator initiates a proxy request, the full Current Manager → New Manager → HR approval chain must be followed. The initiating HR Administrator must not approve their own proxy-initiated request at the HR gate. | Must Have | Q |
+| BR-20 | `[NEW]` | When any proxy request is submitted, the transferring employee shall receive an immediate notification informing them that a request has been raised on their behalf, including the initiator's name and the target department. | Must Have | P, Q |
+| BR-21 | `[NEW]` | All approval routing, eligibility checks (14-day notice, no active request constraint), self-transfer prevention, IDOR access control, and audit log entries shall be evaluated against the `transferringEmployeeId`, not the `initiatedById`. | Must Have | P, Q |
+| BR-22 | `[NEW]` | A Manager raising a transfer request for themselves shall follow the standard self-initiated path (Scenario R). `initiationMode = SELF`; `initiatedById` = `transferringEmployeeId`. No proxy path is applied. | Must Have | R |
 
 ---
 
 ## 8. Business Rules
 
-| Rule ID | Business Rule                                                                                                         | Scenario |
-| ------- | --------------------------------------------------------------------------------------------------------------------- | -------- |
-| BRU-01  | An employee may have only one non-terminal active request at any time.                                                | I        |
-| BRU-02  | Effective date must be ≥ today + 14 calendar days.                                                                    | J        |
-| BRU-03  | Reason field is optional but must not exceed 500 characters if provided.                                              | K        |
-| BRU-04  | Manager approvals are strictly sequential: Current Manager must approve before the New Manager is notified.           | A, C, D  |
-| BRU-05  | Both the Current Manager and New Manager must approve before HR validation can begin.                                 | A        |
-| BRU-06  | HR must approve before any downstream task is spawned.                                                                | A, E     |
-| BRU-07  | Rejection at any stage (Current Manager, New Manager, or HR) must include a mandatory non-empty reason.               | C, D, E  |
-| BRU-08  | Rejection at any stage terminates the request permanently (status = REJECTED); no downstream teams are notified.      | C, D, E  |
-| BRU-09  | Employee may only withdraw a request while it is in PENDING_CURRENT_MANAGER_APPROVAL or PENDING_NEW_MANAGER_APPROVAL. | F, G     |
-| BRU-10  | A downstream task marked as FAILED does not block the other downstream tasks from completing independently.           | H        |
+| Rule ID | Change | Business Rule | Scenario |
+| ------- | ------ | ------------- | -------- |
+| BRU-01 | `[MODIFIED]` | A **transferring employee** (`transferringEmployeeId`) may have only one non-terminal active request at any time. The uniqueness constraint is on the employee being transferred, regardless of who initiated the request. | I, P, Q |
+| BRU-02 | `[EXISTING]` | Effective date must be ≥ today + 14 calendar days. | J, P, Q |
+| BRU-03 | `[EXISTING]` | Reason field is optional but must not exceed 500 characters if provided. | K |
+| BRU-04 | `[EXISTING]` | For self-initiated requests: Manager approvals are strictly sequential (Current Manager → New Manager). | A, C, D |
+| BRU-05 | `[EXISTING]` | Both the Current Manager and New Manager must approve before HR validation can begin (self-initiated path). | A |
+| BRU-06 | `[EXISTING]` | HR must approve before any downstream task is spawned. | A, E |
+| BRU-07 | `[EXISTING]` | Rejection at any stage (Current Manager, New Manager, or HR) must include a mandatory non-empty reason. | C, D, E |
+| BRU-08 | `[EXISTING]` | Rejection at any stage terminates the request permanently (status = REJECTED); no downstream teams are notified. | C, D, E |
+| BRU-09 | `[MODIFIED]` | Either the **transferring employee** or the **proxy initiator** may withdraw a request while it is in PENDING_CURRENT_MANAGER_APPROVAL or PENDING_NEW_MANAGER_APPROVAL. For self-initiated requests, only the employee may withdraw. When withdrawal is triggered by either party, the other party is notified. | F, G, P, Q |
+| BRU-10 | `[EXISTING]` | A downstream task marked as FAILED does not block the other downstream tasks from completing independently. | H |
+| BRU-11 | `[NEW]` | A Manager may only initiate a proxy transfer request for employees who are their **own direct reports**. Attempting to initiate for a non-direct-report returns HTTP 403 Forbidden. | P |
+| BRU-12 | `[NEW]` | An HR Administrator may initiate a proxy transfer request for **any employee in the organisation**, without hierarchy restriction. | Q |
+| BRU-13 | `[NEW]` | When a Manager initiates a proxy request, the Current Manager approval step is **skipped** (proxy consent is implicit). The request enters the approval chain at PENDING_NEW_MANAGER_APPROVAL. | P |
+| BRU-14 | `[NEW]` | When an HR Administrator initiates a proxy request, the full approval chain (PENDING_CURRENT_MANAGER_APPROVAL → PENDING_NEW_MANAGER_APPROVAL → PENDING_HR_VALIDATION) must be followed. The initiating HR Administrator is **not permitted** to approve their own proxy request at the HR gate; a different HR Administrator must validate. | Q |
+| BRU-15 | `[NEW]` | Self-transfer prevention (`targetManagerId ≠ transferringEmployeeId`) is enforced using the `transferringEmployeeId`, never the `initiatedById`. | P, Q |
+| BRU-16 | `[NEW]` | A Manager raising a transfer request for themselves follows the self-initiated path (`initiationMode = SELF`, `initiatedById = transferringEmployeeId`). The proxy flow is not applied. | R |
+| BRU-17 | `[NEW]` | The `initiationMode` field on a transfer request shall be one of: `SELF` (employee raises own request), `PROXY_MANAGER` (manager raises for direct report), `PROXY_HR` (HR raises for any employee). | P, Q, R |
 
 ---
 
@@ -470,44 +587,54 @@ This section covers every scenario an employee or stakeholder may encounter, inc
 
 ### 9.2 Allowed Transitions
 
-| From Status                      | Action        | Performed By       | To Status                         |
-| -------------------------------- | ------------- | ------------------ | --------------------------------- |
-| _(new)_                          | SAVE_DRAFT    | Employee           | DRAFT                             |
-| _(new)_                          | SUBMIT        | Employee           | PENDING_CURRENT_MANAGER_APPROVAL  |
-| DRAFT                            | SUBMIT        | Employee           | PENDING_CURRENT_MANAGER_APPROVAL  |
-| DRAFT                            | DELETE        | Employee           | _(record deleted)_                |
-| PENDING_CURRENT_MANAGER_APPROVAL | APPROVE       | Current Manager    | PENDING_NEW_MANAGER_APPROVAL      |
-| PENDING_CURRENT_MANAGER_APPROVAL | REJECT        | Current Manager    | REJECTED                          |
-| PENDING_CURRENT_MANAGER_APPROVAL | WITHDRAW      | Employee           | WITHDRAWN                         |
-| PENDING_NEW_MANAGER_APPROVAL     | APPROVE       | New Manager        | PENDING_HR_VALIDATION             |
-| PENDING_NEW_MANAGER_APPROVAL     | REJECT        | New Manager        | REJECTED                          |
-| PENDING_NEW_MANAGER_APPROVAL     | WITHDRAW      | Employee           | WITHDRAWN                         |
-| PENDING_HR_VALIDATION            | APPROVE       | HR Administrator   | PROCESSING_DOWNSTREAM             |
-| PENDING_HR_VALIDATION            | REJECT        | HR Administrator   | REJECTED                          |
-| PROCESSING_DOWNSTREAM            | TASK_COMPLETE | Team Administrator | PROCESSING_DOWNSTREAM / COMPLETED |
-| PROCESSING_DOWNSTREAM            | TASK_FAIL     | Team Administrator | PROCESSING_DOWNSTREAM _(flagged)_ |
-| COMPLETED                        | _(no action)_ | —                  | _(terminal)_                      |
-| REJECTED                         | _(no action)_ | —                  | _(terminal)_                      |
-| WITHDRAWN                        | _(no action)_ | —                  | _(terminal)_                      |
+| From Status | Action | Performed By | To Status | Change |
+| --- | --- | --- | --- | --- |
+| _(new)_ | SAVE_DRAFT | Employee | DRAFT | `[EXISTING]` |
+| _(new)_ | SUBMIT | Employee | PENDING_CURRENT_MANAGER_APPROVAL | `[EXISTING]` |
+| _(new)_ | SAVE_DRAFT | Manager (proxy for direct report) | DRAFT | `[NEW]` |
+| _(new)_ | SUBMIT | Manager (proxy for direct report) | PENDING_NEW_MANAGER_APPROVAL ⚡ **(skips Current Manager step)** | `[NEW]` |
+| _(new)_ | SAVE_DRAFT | HR Administrator (proxy for any employee) | DRAFT | `[NEW]` |
+| _(new)_ | SUBMIT | HR Administrator (proxy for any employee) | PENDING_CURRENT_MANAGER_APPROVAL | `[NEW]` |
+| DRAFT | SUBMIT | Employee | PENDING_CURRENT_MANAGER_APPROVAL | `[EXISTING]` |
+| DRAFT | SUBMIT | Manager (proxy) | PENDING_NEW_MANAGER_APPROVAL | `[NEW]` |
+| DRAFT | SUBMIT | HR (proxy) | PENDING_CURRENT_MANAGER_APPROVAL | `[NEW]` |
+| DRAFT | DELETE | Employee or Proxy Initiator | _(record deleted)_ | `[MODIFIED]` |
+| PENDING_CURRENT_MANAGER_APPROVAL | APPROVE | Current Manager | PENDING_NEW_MANAGER_APPROVAL | `[EXISTING]` |
+| PENDING_CURRENT_MANAGER_APPROVAL | REJECT | Current Manager | REJECTED | `[EXISTING]` |
+| PENDING_CURRENT_MANAGER_APPROVAL | WITHDRAW | Transferring Employee **or** Proxy Initiator | WITHDRAWN | `[MODIFIED]` |
+| PENDING_NEW_MANAGER_APPROVAL | APPROVE | New Manager | PENDING_HR_VALIDATION | `[EXISTING]` |
+| PENDING_NEW_MANAGER_APPROVAL | REJECT | New Manager | REJECTED | `[EXISTING]` |
+| PENDING_NEW_MANAGER_APPROVAL | WITHDRAW | Transferring Employee **or** Proxy Initiator | WITHDRAWN | `[MODIFIED]` |
+| PENDING_HR_VALIDATION | APPROVE | HR Administrator *(must not be same as HR proxy initiator if applicable)* | PROCESSING_DOWNSTREAM | `[MODIFIED]` |
+| PENDING_HR_VALIDATION | REJECT | HR Administrator | REJECTED | `[EXISTING]` |
+| PROCESSING_DOWNSTREAM | TASK_COMPLETE | Team Administrator | PROCESSING_DOWNSTREAM / COMPLETED | `[EXISTING]` |
+| PROCESSING_DOWNSTREAM | TASK_FAIL | Team Administrator | PROCESSING_DOWNSTREAM _(flagged)_ | `[EXISTING]` |
+| COMPLETED | _(no action)_ | — | _(terminal)_ | `[EXISTING]` |
+| REJECTED | _(no action)_ | — | _(terminal)_ | `[EXISTING]` |
+| WITHDRAWN | _(no action)_ | — | _(terminal)_ | `[EXISTING]` |
 
 ---
 
 ## 10. Notification Matrix
 
-| Trigger Event                  | Notified Actor(s)                 | Channel           | Message Summary                                                                 |
-| ------------------------------ | --------------------------------- | ----------------- | ------------------------------------------------------------------------------- |
-| Employee submits request       | Current Manager                   | Email + In-Portal | "Action Required: Transfer request from [Employee] is awaiting your approval."  |
-| Current Manager approves       | New Manager + Employee            | Email + In-Portal | New Manager: "Action Required." Employee: "Current Manager approved."           |
-| Current Manager rejects        | Employee                          | Email + In-Portal | "Your transfer request has been rejected. Reason: [Reason]."                    |
-| New Manager approves           | HR Administrator + Employee       | Email + In-Portal | HR: "Action Required." Employee: "New Manager approved."                        |
-| New Manager rejects            | Employee                          | Email + In-Portal | "Your transfer request has been rejected by the New Manager. Reason: [Reason]." |
-| HR approves                    | All 4 downstream teams + Employee | Email + In-Portal | Teams: "Task Assigned." Employee: "HR approved. Processing underway."           |
-| HR rejects                     | Employee                          | Email + In-Portal | "Your transfer request was not approved by HR. Reason: [Reason]."               |
-| Downstream task completed      | Employee (status update)          | In-Portal         | Real-time dashboard update.                                                     |
-| All downstream tasks completed | Employee                          | Email + In-Portal | "Congratulations! Your internal transfer is complete."                          |
-| Downstream task FAILED         | HR Admin + Team Lead              | Email + In-Portal | "Task FAILED — manual intervention required. Comment: [Failure Comment]."       |
-| Employee withdraws             | Currently assigned approver       | Email + In-Portal | "Transfer request from [Employee] has been withdrawn."                          |
-| Downstream SLA breach (5 days) | Team Administrator + Manager      | Email             | "Overdue: Please complete your assigned task for transfer TRF-XXXXX."           |
+| Trigger Event | Change | Notified Actor(s) | Channel | Message Summary |
+| --- | --- | --- | --- | --- |
+| Employee submits request (self-initiated) | `[EXISTING]` | Current Manager | Email + In-Portal | "Action Required: Transfer request from [Employee] is awaiting your approval." |
+| **Manager submits proxy request** | `[NEW]` | Transferring Employee + New Manager | Email + In-Portal | Employee: "A transfer request has been initiated on your behalf by [Manager Name] to [New Dept]. Request ID: TRF-XXXXX." New Manager: "Action Required: Inbound transfer request for [Employee]." |
+| **HR submits proxy request** | `[NEW]` | Transferring Employee + Current Manager | Email + In-Portal | Employee: "A transfer request has been initiated on your behalf by HR [Name] to [New Dept]. Request ID: TRF-XXXXX." Current Manager: "Action Required: Transfer request for your direct report [Employee]." |
+| Current Manager approves | `[EXISTING]` | New Manager + Transferring Employee + Proxy Initiator (if applicable) | Email + In-Portal | New Manager: "Action Required." Employee: "Current Manager approved." Proxy Initiator: "Update: request advancing." |
+| Current Manager rejects | `[EXISTING]` | Transferring Employee + Proxy Initiator (if applicable) | Email + In-Portal | "Transfer request has been rejected. Reason: [Reason]." |
+| New Manager approves | `[EXISTING]` | HR Administrator + Transferring Employee + Proxy Initiator (if applicable) | Email + In-Portal | HR: "Action Required." Employee/Initiator: "New Manager approved." |
+| New Manager rejects | `[EXISTING]` | Transferring Employee + Proxy Initiator (if applicable) | Email + In-Portal | "Transfer request has been rejected by the New Manager. Reason: [Reason]." |
+| HR approves | `[EXISTING]` | All 4 downstream teams + Transferring Employee + Proxy Initiator (if applicable) | Email + In-Portal | Teams: "Task Assigned." Employee/Initiator: "HR approved. Processing underway." |
+| HR rejects | `[EXISTING]` | Transferring Employee + Proxy Initiator (if applicable) | Email + In-Portal | "Transfer request was not approved by HR. Reason: [Reason]." |
+| Downstream task completed | `[EXISTING]` | Transferring Employee (status update) | In-Portal | Real-time dashboard update. |
+| All downstream tasks completed | `[EXISTING]` | Transferring Employee + Proxy Initiator (if applicable) | Email + In-Portal | "Congratulations! Internal transfer complete." |
+| Downstream task FAILED | `[EXISTING]` | HR Admin + Team Lead | Email + In-Portal | "Task FAILED — manual intervention required. Comment: [Failure Comment]." |
+| **Withdrawal by Transferring Employee (proxy request)** | `[NEW]` | Proxy Initiator + Currently assigned approver | Email + In-Portal | Proxy Initiator: "The transferring employee has withdrawn the request you initiated." Approver: "Request withdrawn." |
+| **Withdrawal by Proxy Initiator** | `[NEW]` | Transferring Employee + Currently assigned approver | Email + In-Portal | Employee: "The transfer request raised on your behalf has been withdrawn by [Initiator Name]." Approver: "Request withdrawn." |
+| Employee withdraws (self-initiated) | `[EXISTING]` | Currently assigned approver | Email + In-Portal | "Transfer request from [Employee] has been withdrawn." |
+| Downstream SLA breach (5 days) | `[EXISTING]` | Team Administrator + Manager | Email | "Overdue: Please complete your assigned task for transfer TRF-XXXXX." |
 
 ---
 
@@ -530,14 +657,21 @@ This section covers every scenario an employee or stakeholder may encounter, inc
 
 ## 12. Working Assumptions & Resolved Open Questions
 
-| OQ ID | Question                                 | Resolution / Working Assumption                                                                                                                                                                             | Impact                                                   |
-| ----- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| OQ-1  | Sequential vs parallel manager approval? | **Sequential assumed**: Current Manager approves first, then New Manager is notified. Simplest governance model for this phase.                                                                             | State machine has distinct states for each manager.      |
-| OQ-2  | What eligibility rules does HR apply?    | **Manual review assumed**: HR Administrator manually reviews and makes an approve/reject decision. Automated rule engine deferred to a future phase.                                                        | No automated eligibility logic required in this release. |
-| OQ-3  | SLA for downstream teams?                | **5 business days assumed** per downstream task. System sends automatic reminder notifications at SLA breach. No automatic escalation or state change.                                                      | SLA reminder notification required.                      |
-| OQ-4  | When does IT provisioning trigger?       | **All transfers assumed**: IT provisioning is triggered for all transfers regardless of whether only department, location, or role changes. IT reviews and decides if access changes are needed.            | IT task always spawned.                                  |
-| OQ-5  | What happens if a downstream task fails? | **Individual task failure assumed**: The FAILED task does not block other tasks. Overall request remains PROCESSING_DOWNSTREAM until all tasks reach a terminal state. HR is alerted for manual resolution. | FAILED task isolation logic required.                    |
-| OQ-6  | Minimum effective date notice period?    | **14 calendar days assumed**: Rationale: dual manager review + HR validation typically spans 5–10 business days. A 14-day notice period is operationally realistic for IT/Payroll/Facilities preparation.   | VAL-4 validation rule; date picker constraint.           |
+| OQ ID | Status | Question | Resolution / Working Assumption | Impact |
+| --- | --- | --- | --- | --- |
+| OQ-1 | `[EXISTING]` | Sequential vs parallel manager approval? | **Sequential assumed**: Current Manager approves first, then New Manager is notified. Simplest governance model for this phase. | State machine has distinct states for each manager. |
+| OQ-2 | `[EXISTING]` | What eligibility rules does HR apply? | **Manual review assumed**: HR Administrator manually reviews and makes an approve/reject decision. Automated rule engine deferred to a future phase. | No automated eligibility logic required in this release. |
+| OQ-3 | `[EXISTING]` | SLA for downstream teams? | **5 business days assumed** per downstream task. System sends automatic reminder notifications at SLA breach. No automatic escalation or state change. | SLA reminder notification required. |
+| OQ-4 | `[EXISTING]` | When does IT provisioning trigger? | **All transfers assumed**: IT provisioning is triggered for all transfers regardless of whether only department, location, or role changes. IT reviews and decides if access changes are needed. | IT task always spawned. |
+| OQ-5 | `[EXISTING]` | What happens if a downstream task fails? | **Individual task failure assumed**: The FAILED task does not block other tasks. Overall request remains PROCESSING_DOWNSTREAM until all tasks reach a terminal state. HR is alerted for manual resolution. | FAILED task isolation logic required. |
+| OQ-6 | `[EXISTING]` | Minimum effective date notice period? | **14 calendar days assumed**: Rationale: dual manager review + HR validation typically spans 5–10 business days. A 14-day notice period is operationally realistic for IT/Payroll/Facilities preparation. | VAL-4 validation rule; date picker constraint. |
+| OQ-NEW-01 | `[DECIDED]` | Can a Manager raise proxy requests for any employee or only direct reports? | **Direct reports only** (DECIDED 2026-10-26): A Manager may only initiate a proxy transfer for their own direct report. Enforced via RBAC at API layer. | BRU-11; requires direct-report lookup against HRMS manager hierarchy (DEP-01). |
+| OQ-NEW-02 | `[DECIDED]` | Can HR raise proxy requests for any employee? | **Any employee in the organisation** (DECIDED 2026-10-26): HR Administrator has organisation-wide scope. | BRU-12; HR portal must expose org-wide employee directory search. |
+| OQ-NEW-03 | `[DECIDED]` | Who can withdraw a proxy-initiated request? | **Either party** (DECIDED 2026-10-26): Both the transferring employee and the proxy initiator may withdraw, subject to the same pre-HR lockout (BRU-09). When either withdraws, the other is notified. | BRU-09 modified; dual withdrawal rights; cross-notification required. |
+| OQ-NEW-04 | `[DECIDED]` | Does the initiating Manager skip the Current Manager approval step? | **Yes — Current Manager step is skipped** (DECIDED 2026-10-26): Manager's consent is implicit in the initiation act. Request routes directly to PENDING_NEW_MANAGER_APPROVAL. | BRU-13; state machine transition modified. |
+| OQ-NEW-05 | `[DECIDED]` | What path does a Manager follow when requesting a transfer for themselves? | **Self-initiated path applies** (DECIDED 2026-10-26): `initiationMode = SELF`. No proxy recording. | BRU-16; Scenario R. No change to self-initiated logic. |
+| OQ-NEW-06 | `[DECIDED]` | Should the transferring employee be notified immediately when a proxy raises a request? | **Yes — immediate notification** (DECIDED 2026-10-26): Employee receives email + in-portal notification upon proxy submission. | BR-20; new notification trigger added. |
+| OQ-NEW-07 | `[DECIDED]` | Can the proxy initiator save drafts on behalf of the employee? | **Yes — proxy can save and edit drafts** (DECIDED 2026-10-26): Draft ownership is shared between initiator and transferring employee. | BR-04 modified; draft access model updated. |
 
 ---
 

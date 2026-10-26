@@ -14,7 +14,19 @@
 | **Developer** | Antigravity AI / Shakshi |
 | **Designated Reviewer** | Supratim Jetty (`supratim.jetty@intglobal.com`) |
 | **Submitted** | 2026-10-26 |
-| **Review Status** | 🟡 **PENDING REVIEWER SIGN-OFF** |
+| **Review Status** | ⛔ **SUSPENDED — BRD v4.0 CHANGE IN PROGRESS** |
+
+> [!WARNING]
+> ### ⛔ Gate 2 Review Suspended
+> This Gate 2 review for the initial implementation (`v3.0` scope) is **SUSPENDED** as of 2026-10-26.
+> A major business requirement upgrade has been ingested into [.ai-context/BRD.md](.ai-context/BRD.md) (v4.0) introducing **proxy-initiated transfer scenarios** (Manager-proxy for direct reports, HR-proxy for any employee, identity separation of `initiatedById` and `transferringEmployeeId`).
+> 
+> **SDD Governance Requirement:**
+> Per INT AI-First Governance, code cannot be approved for release against an outdated BRD baseline. Gate 2 review cannot be signed off until:
+> 1. BRD v4.0 completes Gate 0 Re-Approval ([`GATE0-BRD-v4.0-20261026-133300.md`](.ai-context/pr_reviews/GATE0-BRD-v4.0-20261026-133300.md)).
+> 2. Feature Specification (`.ai-context/specs/employee-internal-transfer.spec.md`) is revised and re-approved at Gate 1.
+> 3. Technical plan and tasks are updated, and new TDD test cases covering proxy scenarios are implemented.
+> 4. Once updated code and tests pass, a renewed Gate 2 review will be conducted.
 
 ---
 

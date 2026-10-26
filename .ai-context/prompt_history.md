@@ -179,3 +179,23 @@
   - `.ai-context/pr_reviews/GATE2-employee-internal-transfer-20261026-111138.md` (Created Gate 2 review — 10 mandatory criteria, traceability matrix T01–T15 to AC01–AC15, API contract verification, security review, NFR verification, issues log, sign-off block)
   - `.ai-context/prompt_history.md` (Appended Turn 016)
 - **Outcome:** Gate 2 review document submitted and pending sign-off by Supratim Jetty (`supratim.jetty@intglobal.com`). Upon approval, proceed with `/int-release-management` to generate `RELEASE-v1.0.0.md`.
+
+## Turn 017 — 2026-10-26
+- **Prompt:** `I recommend updating my BRD in a way that clearly separates existing requirements, newly proposed scenarios, and business decisions that still need approval...` / `proceed`
+- **Context & Intent:** Processed comprehensive BRD upgrade request from v3.0 to v4.0 to support proxy-initiated transfer scenarios alongside self-initiated transfers:
+  1. Employee raises their own transfer request (`[EXISTING]`, `initiationMode = SELF`).
+  2. Manager raises transfer request on behalf of a direct report (`[NEW]`, `initiationMode = PROXY_MANAGER`; skips Current Manager approval step).
+  3. HR raises transfer request on behalf of any employee (`[NEW]`, `initiationMode = PROXY_HR`; full chain, self-approval prevented).
+  4. Decoupled `initiatedById` (proxy actor) and `transferringEmployeeId` (subject employee) across all business logic, duplicate checks (BRU-01), IDOR access controls, and notifications.
+  5. Resolved 7 business decisions (OQ-NEW-01 through OQ-NEW-07).
+  6. In accordance with INT SDD governance, suspended pending Gate 2 review (`GATE2-employee-internal-transfer-20261026-111138.md`) until the BRD v4.0 lifecycle (Gate 0 Re-Approval -> Gate 1 Spec Re-Review -> Updated TDD) is completed.
+- **Artifacts Created / Updated:**
+  - `.ai-context/BRD.md` (Upgraded to v4.0 with [EXISTING], [MODIFIED], [NEW] tags, Scenarios P/Q/R, BR-01–BR-22, BRU-01–BRU-17, updated State Machine & Notifications, OQ-NEW-01–07)
+  - `.ai-context/assumptions.md` (Upgraded baseline to v4.0 with ASM-09 through ASM-15)
+  - `.ai-context/brd-change-log.md` (Logged BRD-CHANGE-004)
+  - `.ai-context/decisions/brd-change-log.md` (Logged Version 4.0 classification & architectural impact analysis)
+  - `.ai-context/pr_reviews/GATE0-BRD-v4.0-20261026-133300.md` (Created Gate 0 PR review file for Supratim Jetty)
+  - `.ai-context/pr_reviews/GATE2-employee-internal-transfer-20261026-111138.md` (Updated status to ⛔ SUSPENDED with explanatory alert)
+  - `.ai-context/status.md` (Updated project status board to BRD Change In Progress)
+  - `.ai-context/prompt_history.md` (Appended Turn 017)
+- **Outcome:** BRD v4.0 baseline fully established and synchronized across all SDD control plane artifacts. Gate 0 PR review (`GATE0-BRD-v4.0-20261026-133300.md`) is active and pending reviewer sign-off by Supratim Jetty.

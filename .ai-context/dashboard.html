@@ -43,19 +43,30 @@
       <p>Project: Employee Internal Transfer Digital Journey | Active Spec: employee-internal-transfer</p>
     </div>
     <div>
-      <span class="badge badge-approved">Gate 1: Approved</span>
+      <span class="badge badge-pending">Gate 0: Pending Re-Approval</span>
     </div>
   </header>
   
   <div class="grid">
     <div class="card">
-      <h2>Gate 1 (Spec & BRD Peer Review)</h2>
+      <h2>Gate 0 (BRD v4.0 Re-Review)</h2>
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <span>Assigned Reviewer: <strong>Supratim Jetty</strong> (<code>supratim.jetty@intglobal.com</code>)</span>
-        <span class="badge badge-approved">Approved</span>
+        <span class="badge badge-pending">Pending Sign-Off</span>
       </div>
       <div class="comment-box">
-        Evaluated <code>employee-internal-transfer.spec.md</code> against BRD v3.0 requirements. Gate 1 Approved by Supratim Jetty on 2026-10-05. Technical Plan, Tasks, and Test Cases generated.
+        BRD upgraded to v4.0 with proxy-initiated scenarios (Manager for direct reports, HR for any employee, identity decoupling). PR Review generated: <code>GATE0-BRD-v4.0-20261026-133300.md</code>.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Gate 1 (Spec & Architecture)</h2>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span>Assigned Reviewer: <strong>Supratim Jetty</strong> (<code>supratim.jetty@intglobal.com</code>)</span>
+        <span class="badge badge-approved">v3.0 Approved</span>
+      </div>
+      <div class="comment-box">
+        Approved on 2026-10-05 for v3.0 baseline. Pending revision to incorporate proxy-initiated requirements following Gate 0 re-approval.
       </div>
     </div>
 
@@ -63,10 +74,10 @@
       <h2>Gate 2 (Code Quality & TDD Review)</h2>
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <span>Assigned Reviewer: <strong>Supratim Jetty</strong> (<code>supratim.jetty@intglobal.com</code>)</span>
-        <span class="badge badge-pending">Not Started</span>
+        <span class="badge badge-rejected">Suspended</span>
       </div>
       <div class="comment-box">
-        Plan, Tasks, and Test Cases ready. Awaiting Milestone 4 TDD RED ➔ GREEN implementation and test suite verification.
+        v3.0 implementation 48/48 tests GREEN. Suspended pending BRD v4.0 Gate 0 re-approval, spec revision, and proxy TDD implementation.
       </div>
     </div>
   </div>
@@ -79,6 +90,7 @@
           <tr>
             <th>Spec ID</th>
             <th>Feature Name</th>
+            <th>Gate 0 (BRD)</th>
             <th>Gate 1 (Spec)</th>
             <th>Gate 2 (Code)</th>
             <th>Spec Status</th>
@@ -90,11 +102,12 @@
           <tr>
             <td><code>employee-internal-transfer</code></td>
             <td>Employee Internal Transfer Digital Journey</td>
-            <td><span class="badge badge-approved">Approved</span></td>
-            <td><span class="badge badge-pending">Not Started</span></td>
-            <td><code>Tasks Generated</code></td>
+            <td><span class="badge badge-pending">Pending v4.0</span></td>
+            <td><span class="badge badge-approved">v3.0 Approved</span></td>
+            <td><span class="badge badge-rejected">Suspended</span></td>
+            <td><code>BRD Change — Revision Required</code></td>
             <td>Supratim Jetty (<code>supratim.jetty@intglobal.com</code>)</td>
-            <td>2026-10-15</td>
+            <td>2026-10-26</td>
           </tr>
         </tbody>
       </table>

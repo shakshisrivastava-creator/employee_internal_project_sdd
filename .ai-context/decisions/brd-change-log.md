@@ -4,13 +4,50 @@ This log records requirements baseline versions, classifications, and system imp
 
 ---
 
+### Version 4.0 (Proxy-Initiated Transfer Scenarios Baseline)
+
+- **Change ID:** BRD-CHANGE-004
+- **Baseline Date:** 2026-10-26
+- **Author:** Shakshi
+- **Reviewer:** Supratim Jetty (`supratim.jetty@intglobal.com`)
+- **Status:** Pending Gate 0 Review
+- **Source Document:** `.ai-context/BRD.md` v4.0
+- **Feature Slug:** `employee-internal-transfer`
+
+#### Change Summary
+Upgraded baseline to v4.0 to introduce proxy-initiated transfer scenarios alongside self-initiated transfers:
+1. Manager proxy initiation on behalf of direct reports (skipping Current Manager approval step).
+2. HR proxy initiation on behalf of any employee (full approval chain with self-approval prevention at HR gate).
+3. Explicit separation of `initiatedById` and `transferringEmployeeId` across data model, business logic, validation, duplicate prevention (BRU-01), IDOR access control, and notification matrix.
+4. Resolved 7 business decisions (OQ-NEW-01 through OQ-NEW-07).
+5. Gate 2 review suspended pending Gate 0 re-approval.
+
+#### Requirement Classification
+
+##### Added Requirements
+- **BRD-REQ-013**: Proxy request initiation supporting Manager-on-behalf-of-direct-report and HR-on-behalf-of-any-employee.
+- **BRD-REQ-014**: Initiator vs Subject identity decoupling (`initiatedById` vs `transferringEmployeeId`).
+- **BRD-REQ-015**: Manager direct-report boundary enforcement via HRMS hierarchy (DEP-01).
+- **BRD-REQ-016**: Manager-proxy approval step bypass (transitions directly to `PENDING_NEW_MANAGER_APPROVAL`).
+- **BRD-REQ-017**: HR proxy self-approval prevention (enforces 4-eyes validation at `PENDING_HR_VALIDATION`).
+- **BRD-REQ-018**: Dual-party pre-HR withdrawal capability for proxy transfers with cross-notification.
+- **BRD-REQ-019**: Immediate notification dispatch to transferring employee upon proxy submission.
+
+##### Modified Requirements
+- **BRD-MOD-003 (formerly BRD-REQ-002)**: Drafts can be initiated and edited by proxy initiator on behalf of employee.
+- **BRD-MOD-004 (formerly BRD-REQ-003 / BRU-01)**: Single active request validation enforced strictly against `transferringEmployeeId`, regardless of who initiates.
+- **BRD-MOD-005 (formerly BRD-REQ-009 / BRU-09)**: Withdrawal logic extended to dual authorized actors (initiator or transferring employee) pre-HR.
+- **BRD-MOD-006 (formerly BRD-REQ-012 / AC13)**: RBAC & IDOR updated to permit proxy initiators to access their initiated requests, while locking down access to transferring employee and legitimate actors.
+
+---
+
 ### Version 3.0 (Comprehensive — All Scenarios Baseline)
 
 - **Change ID:** BRD-INGEST-003
 - **Baseline Date:** 2026-10-04
 - **Author:** Shakshi
 - **Reviewer:** Soumyadeep / Supratim Jetty
-- **Status:** Pending Gate 0 Review
+- **Status:** Superseded by v4.0
 - **Source Document:** `docs/BRD_Employee_Internal_Transfer.md`
 - **Feature Slug:** `employee-internal-transfer`
 
